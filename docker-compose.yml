@@ -1,0 +1,73 @@
+name: mantarhane
+
+services:
+  web:
+    build: .
+    container_name: mantarhane-web
+    ports:
+      - "8090:80"
+    volumes:
+      - ./app:/var/www/html
+    environment:
+      APP_ENV: local
+      DB_HOST: db
+      DB_NAME: mantarhane
+      DB_USER: mantarhane
+      DB_PASS: mantarhane
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+      SMTP_USER: ""
+      SMTP_PASS: ""
+      SMTP_SECURE: "none"   # prod (Turhost): "tls" + gerçek SMTP bilgileri
+      ADMIN_PASSWORD: mantar2026
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mailpit:
+        condition: service_started
+
+  db:
+    image: mysql:8.4
+    container_name: mantarhane-db
+    ports:
+      - "3390:3306"
+    environment:
+      MYSQL_DATABASE: mantarhane
+      MYSQL_USER: mantarhane
+      MYSQL_PASSWORD: mantarhane
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mantarhane-db-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-umantarhane", "-pmantarhane"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: mantarhane-redis
+    ports:
+      - "6390:6379"
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: mantarhane-mailpit
+    ports:
+      - "8095:8025"   # web arayüzü: http://localhost:8095
+
+  adminer:
+    image: adminer
+    container_name: mantarhane-adminer
+    ports:
+      - "8096:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+
+volumes:
+  mantarhane-db-data:

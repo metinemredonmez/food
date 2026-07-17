@@ -1,0 +1,11 @@
+# Gizli bilgiler — ASLA commit edilmez
+.env
+
+# Yüklenen görseller (sunucuda üretilir)
+app/public/uploads/*
+!app/public/uploads/.gitkeep
+
+# Yerel / geçici dosyalar
+.DS_Store
+Ekran Resmi*.png
+mantarhane-prod.zip

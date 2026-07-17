@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mantarhane — Lezzeti Mantara Bağladık</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        turuncu: '#FF5A00',
+        kirmizi: '#C8232C',
+        komur:   '#201007',
+        kahve:   '#3D240F',
+        krem:    '#FFF6E8',
+        sut:     '#FFFDF4',
+        hardal:  '#FFC93C',
+      },
+      fontFamily: {
+        display: ['Anton', 'sans-serif'],
+        sans: ['Manrope', 'sans-serif'],
+      },
+    }
+  }
+}
+</script>
+<style>
+  ::selection { background:#FF5A00; color:#FFF6E8; }
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 2px #FF5A00;
+  }
+  .marquee-track { animation: marquee 28s linear infinite; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .blob {
+    border-radius: 58% 42% 47% 53% / 52% 55% 45% 48%;
+    animation: blobmorph 12s ease-in-out infinite alternate;
+  }
+  @keyframes blobmorph {
+    0%   { border-radius: 58% 42% 47% 53% / 52% 55% 45% 48%; }
+    50%  { border-radius: 45% 55% 58% 42% / 48% 45% 55% 52%; }
+    100% { border-radius: 52% 48% 42% 58% / 55% 48% 52% 45%; }
+  }
+  .spin-slow { animation: spin 16s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .card-img { transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+  .menu-card:hover .card-img { transform: scale(1.07); }
+  .noise::after {
+    content:''; position:absolute; inset:0; pointer-events:none; opacity:.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+  }
+  /* Giriş animasyonu (hero) */
+  @keyframes fadeUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform:none; } }
+  #hero-text > * { opacity:0; animation: fadeUp .8s cubic-bezier(.2,.7,.2,1) forwards; }
+  #hero-text > *:nth-child(1){animation-delay:.05s} #hero-text > *:nth-child(2){animation-delay:.15s}
+  #hero-text > *:nth-child(3){animation-delay:.25s} #hero-text > *:nth-child(4){animation-delay:.35s}
+  #hero-text > *:nth-child(5){animation-delay:.45s} #hero-text > *:nth-child(6){animation-delay:.55s}
+  #hero-visual { opacity:0; animation: fadeUp 1s .3s cubic-bezier(.2,.7,.2,1) forwards; }
+  /* Scroll reveal */
+  [data-reveal] { opacity:0; transform: translateY(36px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+  [data-reveal].revealed { opacity:1; transform:none; }
+  /* Yüzen çipler */
+  @keyframes floaty { from { transform: translateY(-8px); } to { transform: translateY(8px); } }
+  .float-chip { animation: floaty 2.6s ease-in-out infinite alternate; }
+  [x-cloak] { display:none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+    #hero-text > *, #hero-visual, [data-reveal] { opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body class="bg-krem font-sans text-kahve antialiased overflow-x-hidden" x-data="{menuOpen:false}">
+
+<!-- ÜST ŞERİT -->
+<div class="bg-turuncu text-krem text-[11px] sm:text-xs font-bold tracking-[0.18em] uppercase">
+  <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-center gap-3 text-center">
+    <span>🍄 Türkiye’nin ilk istiridye mantarı konsepti</span>
+    <span class="hidden sm:inline opacity-60">•</span>
+    <span class="hidden sm:inline">Maltepe / İstanbul — Her gün 11:00 – 01:00</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<header class="sticky top-0 z-50 bg-krem/90 backdrop-blur border-b border-kahve/10">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-3">
+      <img src="assets/logo.png" alt="Mantarhane logo" class="h-12 w-12">
+      <div class="leading-tight">
+        <span class="font-display text-xl tracking-wide text-kahve">MANTARHANE</span>
+        <span class="block text-[10px] font-bold tracking-[0.2em] text-turuncu uppercase">Lezzeti Mantara Bağladık</span>
+      </div>
+    </a>
+    <div class="hidden lg:flex items-center gap-8 text-sm font-bold tracking-wider">
+      <a href="#" class="text-turuncu">ANA SAYFA</a>
+      <a href="#menu" class="hover:text-turuncu transition-colors">LEZZETLERİMİZ</a>
+      <a href="#hikaye" class="hover:text-turuncu transition-colors">HAKKIMIZDA</a>
+      <a href="#franchise" class="hover:text-turuncu transition-colors">FRANCHISE</a>
+      <a href="#iletisim" class="hover:text-turuncu transition-colors">İLETİŞİM</a>
+      <a href="#menu" class="bg-kahve text-krem px-6 py-3 rounded-full hover:bg-turuncu transition-colors">SİPARİŞ VER</a>
+    </div>
+    <button class="lg:hidden p-2" @click="menuOpen=!menuOpen" aria-label="Menü">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </nav>
+  <div x-show="menuOpen" x-cloak class="lg:hidden border-t border-kahve/10 bg-krem px-6 py-4 flex flex-col gap-4 text-sm font-bold tracking-wider">
+    <a href="#" @click="menuOpen=false" class="text-turuncu">ANA SAYFA</a>
+    <a href="#menu" @click="menuOpen=false">LEZZETLERİMİZ</a>
+    <a href="#hikaye" @click="menuOpen=false">HAKKIMIZDA</a>
+    <a href="#franchise" @click="menuOpen=false">FRANCHISE</a>
+    <a href="#iletisim" @click="menuOpen=false">İLETİŞİM</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="relative noise">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-20 lg:pt-20 lg:pb-28 grid lg:grid-cols-2 gap-12 items-center">
+    <div id="hero-text">
+      <span class="inline-flex items-center gap-2 bg-hardal/30 border border-hardal text-kahve text-xs font-extrabold tracking-[0.2em] uppercase px-4 py-2 rounded-full">
+        🍄 Türkiye’de yeni bir akım
+      </span>
+      <h1 class="font-display uppercase leading-[0.95] mt-6 text-[clamp(3rem,7vw,5.5rem)]">
+        Sıradan<br>burgerleri<br><span class="text-outline">unutun!</span>
+      </h1>
+      <p class="mt-4 text-turuncu font-extrabold text-lg tracking-wide uppercase">Çünkü lezzeti mantara bağladık.</p>
+      <p class="mt-4 max-w-md text-kahve/80 leading-relaxed">
+        Köz ateşinde marine edilmiş istiridye mantarının gizli reçeteler ve özel soslarla buluştuğu,
+        sıfır hayvansal etli gurme deneyim.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-4">
+        <a href="#menu" class="bg-turuncu text-krem font-extrabold tracking-wider px-8 py-4 rounded-full shadow-lg shadow-turuncu/30 hover:bg-kirmizi hover:-translate-y-0.5 transition-all">MENÜYÜ KEŞFET</a>
+        <a href="#franchise" class="border-2 border-kahve font-extrabold tracking-wider px-8 py-4 rounded-full hover:bg-kahve hover:text-krem transition-all">FRANCHISE OL</a>
+      </div>
+      <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm font-bold text-kahve/70">
+        <span class="flex items-center gap-2"><span class="text-hardal text-base">★★★★★</span> Misafir favorisi</span>
+        <span>📍 Maltepe / İstanbul</span>
+        <span>🕐 11:00 – 01:00</span>
+      </div>
+    </div>
+    <div class="relative flex justify-center" id="hero-visual">
+      <div class="blob overflow-hidden w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] shadow-2xl shadow-kahve/30">
+        <img src="https://images.unsplash.com/photo-1550317138-10000687a72b?w=900&q=80" alt="Mantarhane imza burger" class="w-full h-full object-cover">
+      </div>
+      <!-- dönen rozet -->
+      <div class="absolute -bottom-6 -left-2 sm:bottom-4 sm:left-4 w-28 h-28 sm:w-36 sm:h-36 bg-krem rounded-full shadow-xl flex items-center justify-center">
+        <svg viewBox="0 0 100 100" class="w-full h-full spin-slow">
+          <defs><path id="circ" d="M 50,50 m -36,0 a 36,36 0 1,1 72,0 a 36,36 0 1,1 -72,0"/></defs>
+          <text class="fill-kahve" style="font: 800 9.5px Manrope; letter-spacing:1.8px">
+            <textPath href="#circ">%100 İSTİRİDYE MANTARI • SIFIR HAYVANSAL ET • </textPath>
+          </text>
+        </svg>
+        <span class="absolute text-3xl">🍄</span>
+      </div>
+      <div class="float-chip absolute top-4 -right-1 sm:top-10 sm:right-2 bg-krem shadow-lg rounded-2xl px-4 py-2 text-sm font-extrabold">🔥 Köz Ateşi</div>
+      <div class="float-chip absolute top-1/2 -left-3 sm:left-0 bg-krem shadow-lg rounded-2xl px-4 py-2 text-sm font-extrabold">🤫 Gizli Reçete</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="bg-kahve text-krem overflow-hidden py-4 -rotate-1 scale-[1.02]">
+  <div class="marquee-track flex whitespace-nowrap font-display uppercase tracking-widest text-xl">
+    <span class="flex shrink-0">
+      <span class="mx-6">Sıfır Hayvansal Et</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Köz Ateşinde Marine</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Gizli Reçeteler</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Gurme Soslar</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Efsane Kokoreç</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Dev Mantar Burger</span><span class="text-turuncu">🍄</span>
+    </span>
+    <span class="flex shrink-0" aria-hidden="true">
+      <span class="mx-6">Sıfır Hayvansal Et</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Köz Ateşinde Marine</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Gizli Reçeteler</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Gurme Soslar</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Efsane Kokoreç</span><span class="text-turuncu">🍄</span>
+      <span class="mx-6">Dev Mantar Burger</span><span class="text-turuncu">🍄</span>
+    </span>
+  </div>
+</div>
+
+<!-- NEDEN MANTARHANE -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 py-20 lg:py-28">
+  <div class="text-center max-w-2xl mx-auto" data-reveal>
+    <span class="text-turuncu font-extrabold tracking-[0.25em] text-xs uppercase">Neden Mantarhane?</span>
+    <h2 class="font-display uppercase text-4xl sm:text-5xl mt-3">Eti unutturan <span class="text-turuncu">üç sır</span></h2>
+  </div>
+  <div class="grid md:grid-cols-3 gap-6 mt-14">
+    <div class="bg-sut rounded-3xl p-8 border border-kahve/5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all" data-reveal>
+      <div class="w-14 h-14 rounded-2xl bg-turuncu/10 flex items-center justify-center text-3xl">🌱</div>
+      <h3 class="font-display uppercase text-2xl mt-5">Sıfır Hayvansal Et</h3>
+      <p class="mt-3 text-kahve/70 leading-relaxed">Menümüzde et kırıntısı bile yok. İstiridye mantarının sulu, lifli dokusuyla tamamen doyurucu lezzetler.</p>
+    </div>
+    <div class="bg-sut rounded-3xl p-8 border border-kahve/5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all" data-reveal>
+      <div class="w-14 h-14 rounded-2xl bg-turuncu/10 flex items-center justify-center text-3xl">🤫</div>
+      <h3 class="font-display uppercase text-2xl mt-5">Gizli Marine Reçetesi</h3>
+      <p class="mt-3 text-kahve/70 leading-relaxed">Her mantar, şeflerimizin gizli baharat ve sos formülleriyle saatlerce dinlendirilerek servis edilir.</p>
+    </div>
+    <div class="bg-sut rounded-3xl p-8 border border-kahve/5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all" data-reveal>
+      <div class="w-14 h-14 rounded-2xl bg-turuncu/10 flex items-center justify-center text-3xl">🔥</div>
+      <h3 class="font-display uppercase text-2xl mt-5">Köz Ateşi</h3>
+      <p class="mt-3 text-kahve/70 leading-relaxed">Sac ve köz ateşinde, tamamen kendimize has tekniklerle pişiriyoruz. Duman aroması işin imzası.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MENÜ -->
+<section id="menu" class="bg-sut border-y border-kahve/5 py-20 lg:py-28">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+      <div>
+        <span class="text-turuncu font-extrabold tracking-[0.25em] text-xs uppercase">İstiridye mantarının en özel hali</span>
+        <h2 class="font-display uppercase text-4xl sm:text-5xl mt-3">Lezzetlerimiz</h2>
+      </div>
+      <p class="max-w-sm text-kahve/60 text-sm leading-relaxed">Kokoreçten dev burgerlere, tamamı istiridye mantarıyla hazırlanan 7 kategori.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-12">
+      <!-- Burgerler (büyük kart) -->
+      <a href="#" class="menu-card group relative rounded-3xl overflow-hidden sm:col-span-2 sm:row-span-2 min-h-[320px]" data-reveal>
+        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80" alt="Mantar burger" class="card-img absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-komur/90 via-komur/25 to-transparent"></div>
+        <div class="absolute bottom-0 p-7 text-krem">
+          <span class="text-hardal text-[11px] font-extrabold tracking-[0.25em] uppercase">Gurme Lezzet</span>
+          <h3 class="font-display uppercase text-3xl mt-1">Burgerler</h3>
+          <p class="text-krem/80 text-sm mt-1 max-w-xs">Sıradan burger ezberini bozan dev mantar burgerler.</p>
+          <span class="inline-flex items-center gap-2 mt-3 text-sm font-extrabold tracking-wider text-hardal group-hover:gap-3 transition-all">İNCELE →</span>
+        </div>
+      </a>
+      <!-- Kokoreçler -->
+      <a href="#" class="menu-card group relative rounded-3xl overflow-hidden min-h-[220px]" data-reveal>
+        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=700&q=80" alt="Mantar kokoreç" class="card-img absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-komur/90 via-komur/20 to-transparent"></div>
+        <div class="absolute bottom-0 p-5 text-krem">
+          <span class="text-hardal text-[10px] font-extrabold tracking-[0.25em] uppercase">Efsane Lezzet</span>
+          <h3 class="font-display uppercase text-xl mt-0.5">Kokoreçler</h3>
+        </div>
+      </a>
+      <!-- Wrapler -->
+      <a href="#" class="menu-card group relative rounded-3xl overflow-hidden min-h-[220px]" data-reveal>
+        <img src="https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=700&q=80" alt="Mantar wrap" class="card-img absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-komur/90 via-komur/20 to-transparent"></div>
+        <div class="absolute bottom-0 p-5 text-krem">
+          <span class="text-hardal text-[10px] font-extrabold tracking-[0.25em] uppercase">Doyurucu Durum</span>
+          <h3 class="font-display uppercase text-xl mt-0.5">Wrapler</h3>
+        </div>
+      </a>
+      <!-- Friesman Box -->
+      <a href="#" class="menu-card group relative rounded-3xl overflow-hidden min-h-[220px]" data-reveal>
+        <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=700&q=80" alt="Friesman Box" class="card-img absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-komur/90 via-komur/20 to-transparent"></div>
+        <div class="absolute bottom-0 p-5 text-krem">
+          <span class="text-hardal text-[10px] font-extrabold tracking-[0.25em] uppercase">Çıtır Kutu</span>
+          <h3 class="font-display uppercase text-xl mt-0.5">Friesman Box</h3>
+        </div>
+      </a>
+      <!-- Soslar -->
+      <a href="#" class="menu-card group relative rounded-3xl overflow-hidden min-h-[220px]" data-reveal>
+        <img src="https://images.unsplash.com/photo-1472476443507-c7a5948772fc?w=700&q=80" alt="Gizli soslar" class="card-img absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-komur/90 via-komur/20 to-transparent"></div>
+        <div class="absolute bottom-0 p-5 text-krem">
+          <span class="text-hardal text-[10px] font-extrabold tracking-[0.25em] uppercase">Gizli Reçete</span>
+          <h3 class="font-display uppercase text-xl mt-0.5">Soslar</h3>
+        </div>
+      </a>
+      <!-- İçecekler -->
+      <a href="#" class="menu-card group relative rounded-3xl overflow-hidden min-h-[220px]" data-reveal>
+        <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=700&q=80" alt="Soğuk içecekler" class="card-img absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-komur/90 via-komur/20 to-transparent"></div>
+        <div class="absolute bottom-0 p-5 text-krem">
+          <span class="text-hardal text-[10px] font-extrabold tracking-[0.25em] uppercase">Ferahlatıcı</span>
+          <h3 class="font-display uppercase text-xl mt-0.5">İçecekler</h3>
+        </div>
+      </a>
+      <!-- Tatlılar -->
+      <a href="#" class="menu-card group relative rounded-3xl overflow-hidden min-h-[220px] sm:col-span-2 lg:col-span-2" data-reveal>
+        <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80" alt="Tatlılar ve atıştırmalıklar" class="card-img absolute inset-0 w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-komur/90 via-komur/20 to-transparent"></div>
+        <div class="absolute bottom-0 p-5 text-krem">
+          <span class="text-hardal text-[10px] font-extrabold tracking-[0.25em] uppercase">Tatlı Kapanış</span>
+          <h3 class="font-display uppercase text-xl mt-0.5">Tatlılar & Atıştırmalıklar</h3>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- HİKAYE -->
+<section id="hikaye" class="max-w-7xl mx-auto px-4 sm:px-6 py-20 lg:py-28 grid lg:grid-cols-2 gap-14 items-center">
+  <div class="relative" data-reveal>
+    <div class="blob overflow-hidden w-full max-w-md mx-auto aspect-square shadow-2xl shadow-kahve/20">
+      <img src="https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=900&q=80" alt="Taze mantarlar" class="w-full h-full object-cover">
+    </div>
+    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 lg:left-auto lg:right-8 lg:translate-x-0 bg-turuncu text-krem rounded-2xl px-6 py-4 shadow-xl text-center">
+      <span class="font-display text-3xl block leading-none">%100</span>
+      <span class="text-[11px] font-extrabold tracking-[0.2em] uppercase">Taze İstiridye Mantarı</span>
+    </div>
+  </div>
+  <div data-reveal>
+    <span class="text-turuncu font-extrabold tracking-[0.25em] text-xs uppercase">Mantarhane’nin Hikayesi</span>
+    <h2 class="font-display uppercase text-4xl sm:text-5xl mt-3 leading-tight">Gurme mantar<br>deneyimi</h2>
+    <p class="mt-6 text-kahve/80 leading-relaxed">
+      Mantarhane, asırlık sokak lezzetlerini ve burger kültürünü hayvansal et kullanmadan, tamamen taze
+      istiridye mantarıyla harmanlayan Türkiye’nin ilk imza konseptidir.
+    </p>
+    <p class="mt-4 text-kahve/80 leading-relaxed">
+      Amacımız sadece etsiz alternatif üretmek değil; eti tamamen unutturacak, damaklarda iz bırakacak
+      yepyeni bir gastronomi akımı yaratmak.
+    </p>
+    <div class="grid grid-cols-3 gap-4 mt-10 text-center">
+      <div class="bg-sut border border-kahve/5 rounded-2xl py-5">
+        <span class="font-display text-3xl text-turuncu block">0</span>
+        <span class="text-[11px] font-extrabold tracking-widest uppercase text-kahve/60">Hayvansal Et</span>
+      </div>
+      <div class="bg-sut border border-kahve/5 rounded-2xl py-5">
+        <span class="font-display text-3xl text-turuncu block">7</span>
+        <span class="text-[11px] font-extrabold tracking-widest uppercase text-kahve/60">Kategori</span>
+      </div>
+      <div class="bg-sut border border-kahve/5 rounded-2xl py-5">
+        <span class="font-display text-3xl text-turuncu block">1.</span>
+        <span class="text-[11px] font-extrabold tracking-widest uppercase text-kahve/60">Türkiye’de İlk</span>
+      </div>
+    </div>
+    <a href="#menu" class="inline-block mt-10 bg-kahve text-krem font-extrabold tracking-wider px-8 py-4 rounded-full hover:bg-turuncu transition-colors">MENÜYÜ KEŞFET</a>
+  </div>
+</section>
+
+<!-- FRANCHISE -->
+<section id="franchise" class="relative bg-komur text-krem overflow-hidden noise">
+  <img src="https://images.unsplash.com/photo-1608767221051-2b9d18f35a2f?w=1600&q=70" alt="" class="absolute inset-0 w-full h-full object-cover opacity-15">
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 lg:py-28">
+    <div class="max-w-2xl" data-reveal>
+      <span class="text-hardal font-extrabold tracking-[0.25em] text-xs uppercase">Franchise Başvurusu</span>
+      <h2 class="font-display uppercase text-4xl sm:text-6xl mt-3 leading-tight">Bu akımın <span class="text-turuncu">ortağı</span> olun</h2>
+      <p class="mt-6 text-krem/75 leading-relaxed max-w-xl">
+        Türkiye’de yeni bir gastronomi akımı başlatan Mantarhane ailesine katılın, kendi işinizin sahibi olun.
+      </p>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-5 mt-12">
+      <div class="bg-krem/5 border border-krem/10 rounded-2xl p-6" data-reveal>
+        <span class="text-2xl">📉</span>
+        <h3 class="font-display uppercase text-xl mt-3">Düşük İşletme Maliyeti</h3>
+        <p class="text-krem/60 text-sm mt-2">Et maliyeti yok; taze mantarla yalın ve verimli mutfak operasyonu.</p>
+      </div>
+      <div class="bg-krem/5 border border-krem/10 rounded-2xl p-6" data-reveal>
+        <span class="text-2xl">📈</span>
+        <h3 class="font-display uppercase text-xl mt-3">Yüksek Kâr Marjı</h3>
+        <p class="text-krem/60 text-sm mt-2">Sürdürülebilir ve kârlı iş modeli, kanıtlanmış imza konsept.</p>
+      </div>
+      <div class="bg-krem/5 border border-krem/10 rounded-2xl p-6" data-reveal>
+        <span class="text-2xl">🏛️</span>
+        <h3 class="font-display uppercase text-xl mt-3">Kurumsal Altyapı</h3>
+        <p class="text-krem/60 text-sm mt-2">Gizli marine reçeteleri, eğitim ve güçlü marka desteği sizinle.</p>
+      </div>
+    </div>
+    <div class="mt-12 flex flex-wrap items-center gap-6" data-reveal>
+      <a href="mailto:franchise@mantarhane.co" class="bg-turuncu text-krem font-extrabold tracking-wider px-10 py-5 rounded-full shadow-lg shadow-turuncu/30 hover:bg-kirmizi transition-colors">BAŞVURU FORMU →</a>
+      <span class="text-krem/60 text-sm">veya yazın: <a href="mailto:franchise@mantarhane.co" class="text-hardal font-bold underline underline-offset-4">franchise@mantarhane.co</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER / İLETİŞİM -->
+<footer id="iletisim" class="bg-kahve text-krem">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+    <div>
+      <div class="flex items-center gap-3">
+        <img src="assets/logo.png" alt="Mantarhane logo" class="h-12 w-12">
+        <span class="font-display text-xl tracking-wide">MANTARHANE</span>
+      </div>
+      <p class="mt-4 text-krem/60 text-sm leading-relaxed">Lezzeti mantara bağladık. Türkiye’nin ilk istiridye mantarı gurme konsepti.</p>
+      <div class="flex gap-3 mt-5">
+        <a href="#" aria-label="Instagram" class="w-10 h-10 rounded-full bg-krem/10 hover:bg-turuncu transition-colors flex items-center justify-center">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.9.2 2.3.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1.1.4 2.3.1 1.2.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.9-.4 2.3-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1.1.4-2.3.4-1.2.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.9-.2-2.3-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1.1-.4-2.3-.1-1.2-.1-1.6-.1-4.8s0-3.6.1-4.8c.1-1.2.2-1.9.4-2.3.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1.1-.4 2.3-.4 1.2-.1 1.6-.1 4.8-.1zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.2.8-.4.4-.6.7-.8 1.2-.2.4-.3 1-.4 2.1-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.2.4.4.7.6 1.2.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.2-.8.4-.4.6-.7.8-1.2.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.2-.4-.4-.7-.6-1.2-.8-.4-.2-1-.3-2.1-.4-1.2-.1-1.6-.1-4.7-.1zm0 3.1a5 5 0 110 10 5 5 0 010-10zm0 1.8a3.2 3.2 0 100 6.4 3.2 3.2 0 000-6.4zm5.2-2.9a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg>
+        </a>
+        <a href="#" aria-label="X" class="w-10 h-10 rounded-full bg-krem/10 hover:bg-turuncu transition-colors flex items-center justify-center">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L1.5 2H8l4.4 5.9L18.9 2zm-1.1 18h1.7L7.1 3.9H5.3L17.8 20z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div>
+      <h4 class="font-display uppercase tracking-wider text-hardal">Menü</h4>
+      <ul class="mt-4 space-y-2.5 text-sm text-krem/70">
+        <li><a href="#menu" class="hover:text-turuncu transition-colors">Burgerler</a></li>
+        <li><a href="#menu" class="hover:text-turuncu transition-colors">Kokoreçler</a></li>
+        <li><a href="#menu" class="hover:text-turuncu transition-colors">Wrapler</a></li>
+        <li><a href="#menu" class="hover:text-turuncu transition-colors">Friesman Box</a></li>
+        <li><a href="#menu" class="hover:text-turuncu transition-colors">Tatlılar & İçecekler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-display uppercase tracking-wider text-hardal">İletişim</h4>
+      <ul class="mt-4 space-y-2.5 text-sm text-krem/70">
+        <li>📍 Feyzullah Mh. Bostan Sk. No:9/A<br>&nbsp;&nbsp;&nbsp;&nbsp;Maltepe / İstanbul</li>
+        <li>🕐 Her gün 11:00 – 01:00</li>
+        <li>✉️ <a href="mailto:info@mantarhane.co" class="hover:text-turuncu transition-colors">info@mantarhane.co</a></li>
+        <li>🤝 <a href="mailto:franchise@mantarhane.co" class="hover:text-turuncu transition-colors">franchise@mantarhane.co</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="font-display uppercase tracking-wider text-hardal">Franchise</h4>
+      <p class="mt-4 text-sm text-krem/70 leading-relaxed">Kendi şehrinizde bir Mantarhane açmak için başvurun.</p>
+      <a href="#franchise" class="inline-block mt-4 bg-turuncu text-krem text-sm font-extrabold tracking-wider px-6 py-3 rounded-full hover:bg-kirmizi transition-colors">HEMEN BAŞVUR</a>
+    </div>
+  </div>
+  <div class="border-t border-krem/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-krem/50">
+      <span>Copyright © 2026 — Mantarhane bir Orsa Food Gıda Ltd. Şti. markasıdır.</span>
+      <span>Maltepe / İstanbul</span>
+    </div>
+  </div>
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js"></script>
+<script>
+  // Scroll reveal: IntersectionObserver + emniyet kemeri (JS/gözlemci aksarsa içerik asla gizli kalmaz)
+  var revealEls = document.querySelectorAll('[data-reveal]');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function (el) { io.observe(el); });
+  }
+  setTimeout(function () {
+    revealEls.forEach(function (el) { el.classList.add('revealed'); });
+  }, 2500);
+</script>
+</body>
+</html>
