@@ -1,0 +1,8 @@
+---
+deployment:
+  tasks:
+    - export HEDEF=/home/mantarha
+    - /bin/mkdir -p $HEDEF/src $HEDEF/templates $HEDEF/public_html/uploads
+    - /bin/cp -R app/public/. $HEDEF/public_html/
+    - /bin/cp -R app/src/. $HEDEF/src/
+    - /bin/cp -R app/templates/. $HEDEF/templates/
