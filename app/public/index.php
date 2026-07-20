@@ -18,13 +18,13 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'Sıf�
       <p class="mt-4 text-turuncu font-bold text-lg"><?= e(ic('hero_slogan', 'Lezzeti mantara bağladık.')) ?></p>
       <p class="mt-3 max-w-md text-kahve/70 leading-relaxed"><?= e(ic('hero_aciklama')) ?></p>
       <div class="mt-8 flex flex-wrap gap-4">
-        <a href="lezzetlerimiz.php" class="bg-turuncu text-krem font-bold px-8 py-4 rounded-full shadow-lg shadow-turuncu/25 hover:bg-kirmizi hover:-translate-y-0.5 transition-all">Menüyü keşfet</a>
-        <a href="franchise.php" class="border-2 border-kahve/80 font-bold px-8 py-4 rounded-full hover:bg-kahve hover:text-krem transition-all">Franchise</a>
+        <a href="lezzetlerimiz.php" class="bg-turuncu text-krem font-bold px-8 py-4 rounded-full shadow-lg shadow-turuncu/25 hover:bg-kirmizi hover:-translate-y-0.5 transition-all"><?= e(s('btn_menu')) ?></a>
+        <a href="franchise.php" class="border-2 border-kahve/80 font-bold px-8 py-4 rounded-full hover:bg-kahve hover:text-krem transition-all"><?= e(s('btn_franchise_ol')) ?></a>
       </div>
       <div class="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 text-sm font-semibold text-kahve/60">
         <span class="flex items-center gap-2"><span class="text-hardal">★★★★★</span> <?= e(ic('hero_yildiz', 'Misafir favorisi')) ?></span>
         <span><?= e($a['adres_kisa']) ?></span>
-        <span><?= e($a['saatler']) ?></span>
+        <span><?= e(cv('saatler', $a['saatler'])) ?></span>
       </div>
     </div>
     <div class="relative flex justify-center" id="hero-visual">
@@ -101,7 +101,7 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'Sıf�
           <h3 class="font-display font-bold <?= $ilk ? 'text-2xl' : 'text-lg' ?> mt-0.5"><?= e($k['isim']) ?></h3>
           <?php if ($ilk): ?>
             <p class="text-krem/75 text-sm mt-1 max-w-xs"><?= e((string) $k['aciklama']) ?></p>
-            <span class="inline-flex items-center gap-2 mt-3 text-sm font-bold text-hardal group-hover:gap-3 transition-all">İncele →</span>
+            <span class="inline-flex items-center gap-2 mt-3 text-sm font-bold text-hardal group-hover:gap-3 transition-all"><?= e(s('incele')) ?></span>
           <?php endif; ?>
         </div>
       </a>
@@ -118,7 +118,7 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'Sıf�
     </div>
     <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 lg:left-auto lg:right-8 lg:translate-x-0 bg-turuncu text-krem rounded-2xl px-6 py-4 shadow-xl text-center">
       <span class="font-display font-bold text-2xl block leading-none">%100</span>
-      <span class="text-[11px] font-bold">taze istiridye mantarı</span>
+      <span class="text-[11px] font-bold"><?= e(s('taze_mantar')) ?></span>
     </div>
   </div>
   <div data-reveal>
@@ -129,18 +129,18 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'Sıf�
     <div class="grid grid-cols-3 gap-4 mt-9 text-center">
       <div class="bg-sut border border-kahve/5 rounded-2xl py-5">
         <span class="font-display font-bold text-2xl text-turuncu block">0</span>
-        <span class="text-[11px] font-bold text-kahve/55">hayvansal et</span>
+        <span class="text-[11px] font-bold text-kahve/55"><?= e(s('istat_et')) ?></span>
       </div>
       <div class="bg-sut border border-kahve/5 rounded-2xl py-5">
         <span class="font-display font-bold text-2xl text-turuncu block"><?= count($kats) ?></span>
-        <span class="text-[11px] font-bold text-kahve/55">kategori</span>
+        <span class="text-[11px] font-bold text-kahve/55"><?= e(s('istat_kategori')) ?></span>
       </div>
       <div class="bg-sut border border-kahve/5 rounded-2xl py-5">
         <span class="font-display font-bold text-2xl text-turuncu block">1.</span>
-        <span class="text-[11px] font-bold text-kahve/55">Türkiye’de ilk</span>
+        <span class="text-[11px] font-bold text-kahve/55"><?= e(s('istat_ilk')) ?></span>
       </div>
     </div>
-    <a href="hakkimizda.php" class="inline-block mt-9 bg-kahve text-krem font-bold px-8 py-4 rounded-full hover:bg-turuncu transition-colors">Hikayemizi okuyun</a>
+    <a href="hakkimizda.php" class="inline-block mt-9 bg-kahve text-krem font-bold px-8 py-4 rounded-full hover:bg-turuncu transition-colors"><?= e(s('btn_hikaye')) ?></a>
   </div>
 </section>
 
@@ -152,7 +152,7 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'Sıf�
       <span class="text-hardal font-bold text-sm"><?= e(ic('fr_ust', 'Franchise')) ?></span>
       <h2 class="font-display font-bold tracking-tight text-3xl sm:text-5xl mt-2"><?= e(ic('fr_baslik')) ?></h2>
       <p class="mt-5 text-krem/70 leading-relaxed max-w-xl"><?= e(ic('fr_metin')) ?></p>
-      <a href="franchise.php" class="inline-block mt-8 bg-turuncu text-krem font-bold px-9 py-4 rounded-full shadow-lg shadow-turuncu/30 hover:bg-kirmizi transition-colors">Başvuru formu →</a>
+      <a href="franchise.php" class="inline-block mt-8 bg-turuncu text-krem font-bold px-9 py-4 rounded-full shadow-lg shadow-turuncu/30 hover:bg-kirmizi transition-colors"><?= e(s('btn_basvuru_formu')) ?></a>
     </div>
   </div>
 </section>

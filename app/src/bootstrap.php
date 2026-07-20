@@ -7,6 +7,77 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/SimpleRedis.php';
 require_once __DIR__ . '/SimpleSmtp.php';
+require_once __DIR__ . '/sozluk.php';
+
+/** Desteklenen diller. */
+function diller(): array
+{
+    return ['tr' => 'Türkçe', 'en' => 'English', 'ar' => 'العربية', 'ru' => 'Русский', 'de' => 'Deutsch'];
+}
+
+/** Aktif dil: ?dil= parametresi > çerez > tr. Admin her zaman TR çalışır. */
+function aktif_dil(): string
+{
+    static $dil = null;
+    if ($dil !== null) {
+        return $dil;
+    }
+    if (str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/admin/')) {
+        return $dil = 'tr';
+    }
+    $liste = array_keys(diller());
+    if (isset($_GET['dil']) && in_array($_GET['dil'], $liste, true)) {
+        $dil = $_GET['dil'];
+        setcookie('dil', $dil, time() + 60 * 60 * 24 * 30, '/');
+    } elseif (isset($_COOKIE['dil']) && in_array($_COOKIE['dil'], $liste, true)) {
+        $dil = $_COOKIE['dil'];
+    } else {
+        $dil = 'tr';
+    }
+    return $dil;
+}
+
+function rtl(): bool
+{
+    return aktif_dil() === 'ar';
+}
+
+/** Arayüz sözlüğü çevirisi (buton, form etiketi vb.). */
+function s(string $anahtar): string
+{
+    $sozluk = sozluk();
+    return $sozluk[aktif_dil()][$anahtar] ?? $sozluk['tr'][$anahtar] ?? $anahtar;
+}
+
+/** Aktif dilin içerik çevirileri (tr için boş — ana metinler icerik/ayarlar tablosunda). */
+function ceviriler(): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $cache = [];
+    $dil = aktif_dil();
+    if ($dil !== 'tr' && ($db = pdo())) {
+        try {
+            $sorgu = $db->prepare('SELECT anahtar, deger FROM icerik_ceviri WHERE dil = ?');
+            $sorgu->execute([$dil]);
+            foreach ($sorgu as $satir) {
+                $cache[$satir['anahtar']] = (string) $satir['deger'];
+            }
+        } catch (Throwable $e) {
+            error_log('Çeviriler okunamadı: ' . $e->getMessage());
+        }
+    }
+    return $cache;
+}
+
+/** Ayarlar gibi TR değeri elde olan metinler için çeviri: varsa çevirisi, yoksa TR. */
+function cv(string $anahtar, string $trDeger): string
+{
+    $c = ceviriler();
+    return ($c[$anahtar] ?? '') !== '' ? $c[$anahtar] : $trDeger;
+}
 
 /**
  * .env dosyası desteği (prod, Docker'sız kurulum için).
@@ -145,14 +216,18 @@ function icerikler(): array
     return $cache;
 }
 
-/** Tek içerik metni; DB'de yoksa/boşsa verilen varsayılan döner. */
+/** Tek içerik metni; aktif dilde çevirisi varsa o, yoksa TR, o da yoksa varsayılan. */
 function ic(string $anahtar, string $varsayilan = ''): string
 {
+    $ceviri = ceviriler()[$anahtar] ?? '';
+    if ($ceviri !== '') {
+        return $ceviri;
+    }
     $deger = icerikler()[$anahtar] ?? '';
     return $deger !== '' ? $deger : $varsayilan;
 }
 
-/** Aktif menü kategorileri (sira'ya göre). */
+/** Aktif menü kategorileri (sira'ya göre), aktif dilin çevirileriyle. */
 function kategoriler(): array
 {
     static $cache = null;
@@ -162,7 +237,22 @@ function kategoriler(): array
     $cache = [];
     if ($db = pdo()) {
         try {
-            $cache = $db->query('SELECT * FROM menu_kategorileri WHERE aktif = 1 ORDER BY sira, id')->fetchAll();
+            $dil = aktif_dil();
+            if ($dil === 'tr') {
+                $cache = $db->query('SELECT * FROM menu_kategorileri WHERE aktif = 1 ORDER BY sira, id')->fetchAll();
+            } else {
+                $sorgu = $db->prepare(
+                    'SELECT k.id, k.gorsel_url, k.sira, k.aktif,
+                            COALESCE(NULLIF(c.isim, ""), k.isim) AS isim,
+                            COALESCE(NULLIF(c.ust_baslik, ""), k.ust_baslik) AS ust_baslik,
+                            COALESCE(NULLIF(c.aciklama, ""), k.aciklama) AS aciklama
+                     FROM menu_kategorileri k
+                     LEFT JOIN menu_kategorileri_ceviri c ON c.kategori_id = k.id AND c.dil = ?
+                     WHERE k.aktif = 1 ORDER BY k.sira, k.id'
+                );
+                $sorgu->execute([$dil]);
+                $cache = $sorgu->fetchAll();
+            }
         } catch (Throwable $e) {
             error_log('Kategoriler okunamadı: ' . $e->getMessage());
         }
@@ -180,12 +270,29 @@ function urunler(): array
     $cache = [];
     if ($db = pdo()) {
         try {
-            $satirlar = $db->query(
-                'SELECT u.* FROM urunler u
-                 JOIN menu_kategorileri k ON k.id = u.kategori_id
-                 WHERE u.aktif = 1 AND k.aktif = 1
-                 ORDER BY k.sira, u.sira, u.id'
-            )->fetchAll();
+            $dil = aktif_dil();
+            if ($dil === 'tr') {
+                $satirlar = $db->query(
+                    'SELECT u.* FROM urunler u
+                     JOIN menu_kategorileri k ON k.id = u.kategori_id
+                     WHERE u.aktif = 1 AND k.aktif = 1
+                     ORDER BY k.sira, u.sira, u.id'
+                )->fetchAll();
+            } else {
+                $sorgu = $db->prepare(
+                    'SELECT u.id, u.kategori_id, u.fiyat, u.gorsel_url, u.sira, u.aktif,
+                            COALESCE(NULLIF(c.isim, ""), u.isim) AS isim,
+                            COALESCE(NULLIF(c.aciklama, ""), u.aciklama) AS aciklama,
+                            COALESCE(NULLIF(c.etiket, ""), u.etiket) AS etiket
+                     FROM urunler u
+                     JOIN menu_kategorileri k ON k.id = u.kategori_id
+                     LEFT JOIN urunler_ceviri c ON c.urun_id = u.id AND c.dil = ?
+                     WHERE u.aktif = 1 AND k.aktif = 1
+                     ORDER BY k.sira, u.sira, u.id'
+                );
+                $sorgu->execute([$dil]);
+                $satirlar = $sorgu->fetchAll();
+            }
             foreach ($satirlar as $u) {
                 $cache[(int) $u['kategori_id']][] = $u;
             }

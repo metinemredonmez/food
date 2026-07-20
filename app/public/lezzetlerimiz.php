@@ -58,7 +58,7 @@ $urunGruplari = urunler();
       <?php endforeach; ?>
     </div>
     <?php else: ?>
-    <p class="mt-6 text-kahve/45 text-sm">Bu kategorinin ürünleri çok yakında burada.</p>
+    <p class="mt-6 text-kahve/45 text-sm"><?= e(s('yakinda')) ?></p>
     <?php endif; ?>
   </section>
   <?php endforeach; ?>

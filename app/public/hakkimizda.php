@@ -34,7 +34,7 @@ require __DIR__ . '/../templates/header.php';
     <?php if (ic('hk_p3') !== ''): ?>
     <p class="mt-8 text-kahve/70 leading-relaxed"><?= e(ic('hk_p3')) ?></p>
     <?php endif; ?>
-    <a href="lezzetlerimiz.php" class="inline-block mt-8 bg-turuncu text-krem font-bold px-8 py-4 rounded-full shadow-lg shadow-turuncu/25 hover:bg-kirmizi transition-colors">Menüyü keşfet</a>
+    <a href="lezzetlerimiz.php" class="inline-block mt-8 bg-turuncu text-krem font-bold px-8 py-4 rounded-full shadow-lg shadow-turuncu/25 hover:bg-kirmizi transition-colors"><?= e(s('btn_menu')) ?></a>
   </div>
 </section>
 

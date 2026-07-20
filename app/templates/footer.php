@@ -18,7 +18,7 @@
       </div>
     </div>
     <div>
-      <h4 class="font-display font-bold text-hardal">Menü</h4>
+      <h4 class="font-display font-bold text-hardal"><?= e(s('footer_menu')) ?></h4>
       <ul class="mt-4 space-y-2.5 text-sm text-krem/70">
         <?php foreach (array_slice(kategoriler(), 0, 6) as $fk): ?>
         <li><a href="lezzetlerimiz.php#kat-<?= (int) $fk['id'] ?>" class="hover:text-turuncu transition-colors"><?= e($fk['isim']) ?></a></li>
@@ -26,18 +26,18 @@
       </ul>
     </div>
     <div>
-      <h4 class="font-display font-bold text-hardal">İletişim</h4>
+      <h4 class="font-display font-bold text-hardal"><?= e(s('footer_iletisim')) ?></h4>
       <ul class="mt-4 space-y-2.5 text-sm text-krem/70">
         <li>📍 <?= e($a['adres']) ?></li>
-        <li>🕐 <?= e($a['saatler']) ?></li>
+        <li>🕐 <?= e(cv('saatler', $a['saatler'])) ?></li>
         <li>✉️ <a href="mailto:<?= e($a['email_info']) ?>" class="hover:text-turuncu transition-colors"><?= e($a['email_info']) ?></a></li>
         <li>🤝 <a href="mailto:<?= e($a['email_franchise']) ?>" class="hover:text-turuncu transition-colors"><?= e($a['email_franchise']) ?></a></li>
       </ul>
     </div>
     <div>
-      <h4 class="font-display font-bold text-hardal">Franchise</h4>
+      <h4 class="font-display font-bold text-hardal"><?= e(s('footer_franchise')) ?></h4>
       <p class="mt-4 text-sm text-krem/70 leading-relaxed"><?= e(ic('footer_franchise', 'Kendi şehrinizde bir Mantarhane açmak için başvurun.')) ?></p>
-      <a href="franchise.php" class="inline-block mt-4 bg-turuncu text-krem text-sm font-bold px-6 py-3 rounded-full hover:bg-kirmizi transition-colors">Hemen başvur</a>
+      <a href="franchise.php" class="inline-block mt-4 bg-turuncu text-krem text-sm font-bold px-6 py-3 rounded-full hover:bg-kirmizi transition-colors"><?= e(s('btn_hemen_basvur')) ?></a>
     </div>
   </div>
   <div class="border-t border-krem/10">

@@ -25,6 +25,12 @@ $tab = $_GET['tab'] ?? 'basvurular';
 $bildirim = null;
 $db = pdo();
 
+$dilListesi = diller();
+$adminDil = $_POST['ceviri_dil'] ?? $_GET['dil'] ?? 'tr';
+if (!array_key_exists($adminDil, $dilListesi)) {
+    $adminDil = 'tr';
+}
+
 if ($girisli && $db && $_SERVER['REQUEST_METHOD'] === 'POST' && csrf_gecerli()) {
 
     // Site ayarları
@@ -142,6 +148,34 @@ if ($girisli && $db && $_SERVER['REQUEST_METHOD'] === 'POST' && csrf_gecerli()) 
         $tab = 'urunler';
     }
 
+    // İçerik çevirisi kaydet (EN/AR/RU/DE)
+    if (isset($_POST['ceviri']) && is_array($_POST['ceviri']) && $adminDil !== 'tr') {
+        $kaydet = $db->prepare('REPLACE INTO icerik_ceviri (anahtar, dil, deger) VALUES (?,?,?)');
+        foreach ($_POST['ceviri'] as $anahtar => $deger) {
+            $kaydet->execute([substr((string) $anahtar, 0, 64), $adminDil, trim((string) $deger)]);
+        }
+        $bildirim = strtoupper($adminDil) . ' çevirileri kaydedildi.';
+        $tab = 'icerikler';
+    }
+
+    // Kategori çevirisi kaydet
+    if (isset($_POST['kategori_ceviri_kaydet']) && $adminDil !== 'tr') {
+        $db->prepare('REPLACE INTO menu_kategorileri_ceviri (kategori_id, dil, isim, ust_baslik, aciklama) VALUES (?,?,?,?,?)')
+           ->execute([(int) ($_POST['id'] ?? 0), $adminDil,
+                      trim((string) ($_POST['isim'] ?? '')), trim((string) ($_POST['ust_baslik'] ?? '')), trim((string) ($_POST['aciklama'] ?? ''))]);
+        $bildirim = 'Kategori çevirisi kaydedildi (' . strtoupper($adminDil) . ').';
+        $tab = 'menu';
+    }
+
+    // Ürün çevirisi kaydet
+    if (isset($_POST['urun_ceviri_kaydet']) && $adminDil !== 'tr') {
+        $db->prepare('REPLACE INTO urunler_ceviri (urun_id, dil, isim, aciklama, etiket) VALUES (?,?,?,?,?)')
+           ->execute([(int) ($_POST['id'] ?? 0), $adminDil,
+                      trim((string) ($_POST['isim'] ?? '')), trim((string) ($_POST['aciklama'] ?? '')), trim((string) ($_POST['etiket'] ?? ''))]);
+        $bildirim = 'Ürün çevirisi kaydedildi (' . strtoupper($adminDil) . ').';
+        $tab = 'urunler';
+    }
+
     // Serbest görsel yükleme (metin alanlarında kullanmak için URL üretir)
     if (isset($_POST['genel_gorsel'])) {
         try {
@@ -157,6 +191,7 @@ if ($girisli && $db && $_SERVER['REQUEST_METHOD'] === 'POST' && csrf_gecerli()) 
 }
 
 $basvurular = $mesajlar = $ayarSatirlari = $icerikSatirlari = $tumKategoriler = $tumUrunler = [];
+$icerikCevirileri = $katCevirileri = $urunCevirileri = [];
 if ($girisli && $db) {
     try {
         $basvurular      = $db->query('SELECT * FROM franchise_basvurulari ORDER BY id DESC LIMIT 200')->fetchAll();
@@ -164,6 +199,17 @@ if ($girisli && $db) {
         $ayarSatirlari   = $db->query("SELECT anahtar, deger FROM ayarlar WHERE anahtar <> 'tema_palet' ORDER BY anahtar")->fetchAll();
         $icerikSatirlari = $db->query('SELECT anahtar, deger FROM icerik ORDER BY anahtar')->fetchAll();
         $tumKategoriler  = $db->query('SELECT * FROM menu_kategorileri ORDER BY sira, id')->fetchAll();
+        if ($adminDil !== 'tr') {
+            $s = $db->prepare('SELECT anahtar, deger FROM icerik_ceviri WHERE dil = ?');
+            $s->execute([$adminDil]);
+            foreach ($s as $satir) { $icerikCevirileri[$satir['anahtar']] = (string) $satir['deger']; }
+            $s = $db->prepare('SELECT * FROM menu_kategorileri_ceviri WHERE dil = ?');
+            $s->execute([$adminDil]);
+            foreach ($s as $satir) { $katCevirileri[(int) $satir['kategori_id']] = $satir; }
+            $s = $db->prepare('SELECT * FROM urunler_ceviri WHERE dil = ?');
+            $s->execute([$adminDil]);
+            foreach ($s as $satir) { $urunCevirileri[(int) $satir['urun_id']] = $satir; }
+        }
         $tumUrunler      = $db->query('SELECT u.*, k.isim AS kategori_isim FROM urunler u LEFT JOIN menu_kategorileri k ON k.id = u.kategori_id ORDER BY k.sira, u.sira, u.id')->fetchAll();
     } catch (Throwable $hata) {
         error_log('Admin veri okuma hatası: ' . $hata->getMessage());
@@ -293,6 +339,20 @@ tailwind.config = { theme: { extend: {
       <div class="mt-5 bg-red-50 border border-red-200 text-red-800 rounded-xl px-5 py-3.5 text-sm font-semibold">Veritabanına bağlanılamadı.</div>
       <?php endif; ?>
 
+      <?php if (in_array($tab, ['icerikler', 'menu', 'urunler'], true)): ?>
+      <div class="mt-5 flex items-center gap-2">
+        <span class="text-xs font-bold text-stone-400">Dil:</span>
+        <?php foreach ($dilListesi as $dKod => $dAd): ?>
+        <a href="?tab=<?= $tab ?>&dil=<?= $dKod ?>"
+           class="px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase <?= $adminDil === $dKod ? 'bg-turuncu text-white' : 'bg-white border border-stone-200 hover:border-turuncu' ?>"
+           title="<?= e($dAd) ?>"><?= $dKod ?></a>
+        <?php endforeach; ?>
+        <?php if ($adminDil !== 'tr'): ?>
+        <span class="text-xs text-stone-400">— <?= e($dilListesi[$adminDil]) ?> çevirilerini düzenliyorsunuz; boş bırakılan alanlar sitede Türkçe görünür.</span>
+        <?php endif; ?>
+      </div>
+      <?php endif; ?>
+
       <?php if ($tab === 'basvurular'): ?>
       <div class="mt-6 overflow-x-auto bg-white border border-stone-200 rounded-2xl shadow-sm">
         <table class="w-full text-sm">
@@ -338,6 +398,37 @@ tailwind.config = { theme: { extend: {
         </table>
       </div>
 
+      <?php elseif ($tab === 'icerikler' && $adminDil !== 'tr'): ?>
+      <?php
+      $gorselAnahtarlari = ['hero_gorsel', 'hikaye_gorsel', 'franchise_gorsel'];
+      $cevrilebilir = [];
+      foreach ($ayarSatirlari as $satir) {
+          if (in_array($satir['anahtar'], ['site_baslik', 'slogan', 'saatler', 'seo_aciklama'], true)) {
+              $cevrilebilir[] = $satir;
+          }
+      }
+      foreach ($icerikSatirlari as $satir) {
+          if (!in_array($satir['anahtar'], $gorselAnahtarlari, true)) {
+              $cevrilebilir[] = $satir;
+          }
+      }
+      ?>
+      <form method="post" class="mt-6 bg-white border border-stone-200 rounded-2xl shadow-sm p-6 sm:p-8" <?= $adminDil === 'ar' ? '' : '' ?>>
+        <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+        <input type="hidden" name="ceviri_dil" value="<?= e($adminDil) ?>">
+        <div class="grid md:grid-cols-2 gap-4">
+          <?php foreach ($cevrilebilir as $satir): ?>
+          <div>
+            <span class="text-xs font-bold text-stone-400"><?= e($satir['anahtar']) ?></span>
+            <p class="text-[11px] text-stone-400 mt-0.5 line-clamp-1">TR: <?= e((string) $satir['deger']) ?></p>
+            <textarea name="ceviri[<?= e($satir['anahtar']) ?>]" rows="2" <?= $adminDil === 'ar' ? 'dir="rtl"' : '' ?>
+                      class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 focus:border-turuncu focus:ring-turuncu text-sm"><?= e($icerikCevirileri[$satir['anahtar']] ?? '') ?></textarea>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <button class="mt-6 bg-turuncu text-white font-bold px-8 py-3 rounded-xl hover:bg-koyu transition-colors"><?= strtoupper($adminDil) ?> çevirilerini kaydet</button>
+      </form>
+
       <?php elseif ($tab === 'icerikler'): ?>
       <form method="post" enctype="multipart/form-data" class="mt-6 bg-white border border-stone-200 rounded-2xl shadow-sm p-5 flex flex-wrap items-center gap-3">
         <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
@@ -360,6 +451,31 @@ tailwind.config = { theme: { extend: {
         </div>
         <button class="mt-6 bg-turuncu text-white font-bold px-8 py-3 rounded-xl hover:bg-koyu transition-colors">Kaydet</button>
       </form>
+
+      <?php elseif ($tab === 'menu' && $adminDil !== 'tr'): ?>
+      <div class="mt-6 space-y-4">
+        <?php foreach ($tumKategoriler as $k): $c = $katCevirileri[(int) $k['id']] ?? []; ?>
+        <form method="post" class="bg-white border border-stone-200 rounded-2xl shadow-sm p-5 grid md:grid-cols-12 gap-3 items-end">
+          <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+          <input type="hidden" name="ceviri_dil" value="<?= e($adminDil) ?>">
+          <input type="hidden" name="id" value="<?= (int) $k['id'] ?>">
+          <div class="md:col-span-2">
+            <span class="text-xs font-bold text-stone-400">TR</span>
+            <p class="font-bold text-sm mt-1"><?= e($k['isim']) ?></p>
+          </div>
+          <label class="md:col-span-3 block"><span class="text-xs font-bold text-stone-400">İsim (<?= strtoupper($adminDil) ?>)</span>
+            <input name="isim" value="<?= e((string) ($c['isim'] ?? '')) ?>" <?= $adminDil === 'ar' ? 'dir="rtl"' : '' ?> class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 text-sm focus:border-turuncu focus:ring-turuncu"></label>
+          <label class="md:col-span-3 block"><span class="text-xs font-bold text-stone-400">Üst başlık</span>
+            <input name="ust_baslik" value="<?= e((string) ($c['ust_baslik'] ?? '')) ?>" <?= $adminDil === 'ar' ? 'dir="rtl"' : '' ?> class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 text-sm focus:border-turuncu focus:ring-turuncu"></label>
+          <label class="md:col-span-3 block"><span class="text-xs font-bold text-stone-400">Açıklama</span>
+            <input name="aciklama" value="<?= e((string) ($c['aciklama'] ?? '')) ?>" <?= $adminDil === 'ar' ? 'dir="rtl"' : '' ?> class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 text-sm focus:border-turuncu focus:ring-turuncu"></label>
+          <div class="md:col-span-1">
+            <button name="kategori_ceviri_kaydet" value="1" class="bg-turuncu text-white text-xs font-bold px-5 py-2.5 rounded-lg hover:bg-koyu transition-colors">Kaydet</button>
+          </div>
+        </form>
+        <?php endforeach; ?>
+        <p class="text-xs text-stone-400">Fiyat, görsel, sıra ve aktiflik yalnızca TR sekmesinde yönetilir.</p>
+      </div>
 
       <?php elseif ($tab === 'menu'): ?>
       <div class="mt-6 space-y-4">
@@ -419,6 +535,31 @@ tailwind.config = { theme: { extend: {
             </label>
           </div>
         </form>
+      </div>
+
+      <?php elseif ($tab === 'urunler' && $adminDil !== 'tr'): ?>
+      <div class="mt-6 space-y-4">
+        <?php foreach ($tumUrunler as $u): $c = $urunCevirileri[(int) $u['id']] ?? []; ?>
+        <form method="post" class="bg-white border border-stone-200 rounded-2xl shadow-sm p-5 grid md:grid-cols-12 gap-3 items-end">
+          <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+          <input type="hidden" name="ceviri_dil" value="<?= e($adminDil) ?>">
+          <input type="hidden" name="id" value="<?= (int) $u['id'] ?>">
+          <div class="md:col-span-3">
+            <span class="text-xs font-bold text-stone-400">TR · <?= e((string) $u['kategori_isim']) ?></span>
+            <p class="font-bold text-sm mt-1"><?= e($u['isim']) ?> — <?= e(fiyat_goster($u['fiyat'])) ?></p>
+          </div>
+          <label class="md:col-span-3 block"><span class="text-xs font-bold text-stone-400">İsim (<?= strtoupper($adminDil) ?>)</span>
+            <input name="isim" value="<?= e((string) ($c['isim'] ?? '')) ?>" <?= $adminDil === 'ar' ? 'dir="rtl"' : '' ?> class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 text-sm focus:border-turuncu focus:ring-turuncu"></label>
+          <label class="md:col-span-3 block"><span class="text-xs font-bold text-stone-400">Açıklama</span>
+            <input name="aciklama" value="<?= e((string) ($c['aciklama'] ?? '')) ?>" <?= $adminDil === 'ar' ? 'dir="rtl"' : '' ?> class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 text-sm focus:border-turuncu focus:ring-turuncu"></label>
+          <label class="md:col-span-2 block"><span class="text-xs font-bold text-stone-400">Etiket</span>
+            <input name="etiket" value="<?= e((string) ($c['etiket'] ?? '')) ?>" <?= $adminDil === 'ar' ? 'dir="rtl"' : '' ?> class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 text-sm focus:border-turuncu focus:ring-turuncu"></label>
+          <div class="md:col-span-1">
+            <button name="urun_ceviri_kaydet" value="1" class="bg-turuncu text-white text-xs font-bold px-5 py-2.5 rounded-lg hover:bg-koyu transition-colors">Kaydet</button>
+          </div>
+        </form>
+        <?php endforeach; ?>
+        <p class="text-xs text-stone-400">Fiyat, görsel, sıra ve aktiflik yalnızca TR sekmesinde yönetilir.</p>
       </div>
 
       <?php elseif ($tab === 'urunler'): ?>
