@@ -484,7 +484,8 @@ tailwind.config = { theme: { extend: {
           <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
           <input type="hidden" name="id" value="<?= (int) $k['id'] ?>">
           <div class="md:col-span-1 flex items-center">
-            <?php if ($k['gorsel_url']): ?><img src="<?= e((string) $k['gorsel_url']) ?>" alt="" class="w-12 h-12 rounded-xl object-cover border border-stone-200"><?php endif; ?>
+            <?php if ($k['gorsel_url']): ?><img src="../<?= e(ltrim((string) $k['gorsel_url'], '/')) ?>" alt="" class="w-12 h-12 rounded-xl object-cover border border-stone-200"
+              onerror="this.src='<?= e((string) $k['gorsel_url']) ?>'"><?php endif; ?>
           </div>
           <label class="md:col-span-2 block"><span class="text-xs font-bold text-stone-400">İsim</span>
             <input name="isim" value="<?= e($k['isim']) ?>" required class="mt-1 w-full rounded-xl border-stone-200 bg-zemin/60 text-sm focus:border-turuncu focus:ring-turuncu"></label>
