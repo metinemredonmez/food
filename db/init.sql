@@ -568,3 +568,9 @@ SELECT u.id, t.dil, t.isim, t.aciklama, t.etiket FROM (
   SELECT 'San Sebastian Cheesecake','de','San Sebastian Cheesecake','Täglich frisch, pro Stück.','Süßer Abschluss'
 ) t JOIN urunler u ON u.isim = t.tr_isim
 ON DUPLICATE KEY UPDATE isim=VALUES(isim), aciklama=VALUES(aciklama), etiket=VALUES(etiket);
+-- Telefon + WhatsApp ayarları (adminde Ayarlar sekmesinde düzenlenir)
+SET NAMES utf8mb4;
+INSERT INTO ayarlar (anahtar, deger) VALUES
+  ('telefon',  '+90 532 216 58 14'),
+  ('whatsapp', '905322165814')
+ON DUPLICATE KEY UPDATE anahtar = anahtar;

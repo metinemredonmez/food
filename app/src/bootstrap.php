@@ -167,6 +167,8 @@ function ayarlar(): array
         'adres'           => 'Feyzullah Mh. Bostan Sk. No:9/A Maltepe / İstanbul',
         'adres_kisa'      => 'Maltepe / İstanbul',
         'saatler'         => 'Her gün 11:00 – 01:00',
+        'telefon'         => '+90 532 216 58 14',
+        'whatsapp'        => '905322165814',
         'email_info'      => 'info@mantarhane.co',
         'email_social'    => 'social@mantarhane.co',
         'email_franchise' => 'franchise@mantarhane.co',
@@ -189,6 +191,20 @@ function ayarlar(): array
         }
     }
     return $cache = array_merge($varsayilan, $dbDegerleri);
+}
+
+/** WhatsApp sohbet linki (ayarlar.whatsapp, boşsa telefon). 0532… / 532… / 0090… yazımları 90532… olur; numara yoksa ''. */
+function whatsapp_url(): string
+{
+    $a = ayarlar();
+    $no = preg_replace('/\D+/', '', $a['whatsapp'] !== '' ? $a['whatsapp'] : $a['telefon']);
+    $no = preg_replace('/^00/', '', $no);
+    if (str_starts_with($no, '0')) {
+        $no = '9' . $no;
+    } elseif (strlen($no) === 10) {
+        $no = '90' . $no;
+    }
+    return $no === '' ? '' : 'https://wa.me/' . $no . '?text=' . rawurlencode(s('wa_mesaj'));
 }
 
 function e(?string $metin): string
@@ -225,6 +241,17 @@ function ic(string $anahtar, string $varsayilan = ''): string
     }
     $deger = icerikler()[$anahtar] ?? '';
     return $deger !== '' ? $deger : $varsayilan;
+}
+
+/** <img> src'si + yedek: adminden girilen görsel yüklenemezse (silinmiş dosya, süresi dolmuş CDN) varsayılana düşer. */
+function gorsel_src(string $anahtar, string $varsayilan): string
+{
+    $src = ic($anahtar, $varsayilan);
+    $html = 'src="' . e($src) . '"';
+    if ($src !== $varsayilan) {
+        $html .= ' onerror="' . e('this.onerror=null;this.src=' . json_encode($varsayilan, JSON_UNESCAPED_SLASHES)) . '"';
+    }
+    return $html;
 }
 
 /** Aktif menü kategorileri (sira'ya göre), aktif dilin çevirileriyle. */

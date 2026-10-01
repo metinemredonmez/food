@@ -13,7 +13,7 @@ require __DIR__ . '/../templates/header.php';
 <section class="max-w-7xl mx-auto px-4 sm:px-6 py-12 grid lg:grid-cols-2 gap-14 items-center">
   <div class="relative" data-reveal>
     <div class="blob overflow-hidden w-full max-w-md mx-auto aspect-square shadow-2xl shadow-kahve/20">
-      <img src="<?= e(ic('hikaye_gorsel', 'https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=900&q=80')) ?>" alt="Taze istiridye mantarları" class="w-full h-full object-cover">
+      <img <?= gorsel_src('hikaye_gorsel', 'https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=900&q=80') ?> alt="Taze istiridye mantarları" class="w-full h-full object-cover">
     </div>
   </div>
   <div data-reveal>

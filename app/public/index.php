@@ -29,7 +29,7 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'SÄ±fÄ
     </div>
     <div class="relative flex justify-center" id="hero-visual">
       <div class="blob overflow-hidden w-[320px] h-[320px] sm:w-[440px] sm:h-[440px] shadow-2xl shadow-kahve/30">
-        <img src="<?= e(ic('hero_gorsel', 'https://images.unsplash.com/photo-1550317138-10000687a72b?w=900&q=80')) ?>" alt="Mantarhane imza burger" class="w-full h-full object-cover">
+        <img <?= gorsel_src('hero_gorsel', 'https://images.unsplash.com/photo-1550317138-10000687a72b?w=900&q=80') ?> alt="Mantarhane imza burger" class="w-full h-full object-cover">
       </div>
       <div class="absolute -bottom-6 -left-2 sm:bottom-4 sm:left-4 w-28 h-28 sm:w-36 sm:h-36 bg-krem rounded-full shadow-xl flex items-center justify-center">
         <svg viewBox="0 0 100 100" class="w-full h-full spin-slow">
@@ -114,7 +114,7 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'SÄ±fÄ
 <section class="max-w-7xl mx-auto px-4 sm:px-6 py-20 lg:py-28 grid lg:grid-cols-2 gap-14 items-center">
   <div class="relative" data-reveal>
     <div class="blob overflow-hidden w-full max-w-md mx-auto aspect-square shadow-2xl shadow-kahve/20">
-      <img src="<?= e(ic('hikaye_gorsel', 'https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=900&q=80')) ?>" alt="Taze mantarlar" class="w-full h-full object-cover">
+      <img <?= gorsel_src('hikaye_gorsel', 'https://images.unsplash.com/photo-1504545102780-26774c1bb073?w=900&q=80') ?> alt="Taze mantarlar" class="w-full h-full object-cover">
     </div>
     <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 lg:left-auto lg:right-8 lg:translate-x-0 bg-turuncu text-krem rounded-2xl px-6 py-4 shadow-xl text-center">
       <span class="font-display font-bold text-2xl block leading-none">%100</span>
@@ -146,7 +146,7 @@ $seritParcalari = array_filter(array_map('trim', explode(',', ic('serit', 'SÄ±fÄ
 
 <!-- FRANCHISE CTA -->
 <section class="relative bg-komur text-krem overflow-hidden noise">
-  <img src="<?= e(ic('franchise_gorsel', 'https://images.unsplash.com/photo-1608767221051-2b9d18f35a2f?w=1600&q=70')) ?>" alt="" class="absolute inset-0 w-full h-full object-cover opacity-15">
+  <img <?= gorsel_src('franchise_gorsel', 'https://images.unsplash.com/photo-1608767221051-2b9d18f35a2f?w=1600&q=70') ?> alt="" class="absolute inset-0 w-full h-full object-cover opacity-15">
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-20 lg:py-28">
     <div class="max-w-2xl" data-reveal>
       <span class="text-hardal font-bold text-sm"><?= e(ic('fr_ust', 'Franchise')) ?></span>

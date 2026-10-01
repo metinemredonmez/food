@@ -72,6 +72,10 @@ tailwind.config = {
   <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0">
       <span class="truncate"><?= e(ic('ust_serit', 'Türkiye’nin ilk istiridye mantarı konsepti')) ?></span>
+      <?php if ($a['telefon'] !== '' && $wa = whatsapp_url()): ?>
+      <span class="hidden sm:inline opacity-60">·</span>
+      <a href="<?= e($wa) ?>" target="_blank" rel="noopener" dir="ltr" class="hidden sm:inline whitespace-nowrap hover:underline underline-offset-2"><?= e($a['telefon']) ?></a>
+      <?php endif; ?>
       <span class="hidden sm:inline opacity-60">·</span>
       <span class="hidden sm:inline whitespace-nowrap"><?= e($a['adres_kisa']) ?> — <?= e(cv('saatler', $a['saatler'])) ?></span>
     </div>
